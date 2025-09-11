@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(DoS_mapOrphans)
         tx.vout.resize(1);
         tx.vout[0].nValue = 1*CENT;
         tx.vout[0].scriptPubKey.SetDestination(key.GetPubKey().GetID());
-        SignSignature(keystore, txPrev, tx, 0);
+        SignSignature(keystore, txPrev, tx, 0, SIGHASH_ALL, 0);
 
         AddOrphanTx(tx);
     }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(DoS_mapOrphans)
             tx.vin[j].prevout.n = j;
             tx.vin[j].prevout.hash = txPrev.GetHash();
         }
-        SignSignature(keystore, txPrev, tx, 0);
+        SignSignature(keystore, txPrev, tx, 0, SIGHASH_ALL, 0);
         // Re-use same signature for other inputs
         // (they don't have to be valid for this test)
         for (unsigned int j = 1; j < tx.vin.size(); j++)
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(DoS_checkSig)
     // Creating signatures primes the cache:
     boost::posix_time::ptime mst1 = boost::posix_time::microsec_clock::local_time();
     for (unsigned int j = 0; j < tx.vin.size(); j++)
-        BOOST_CHECK(SignSignature(keystore, orphans[j], tx, j));
+        BOOST_CHECK(SignSignature(keystore, orphans[j], tx, j, SIGHASH_ALL, 0));
     boost::posix_time::ptime mst2 = boost::posix_time::microsec_clock::local_time();
     boost::posix_time::time_duration msdiff = mst2 - mst1;
     long nOneValidate = msdiff.total_milliseconds();
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(DoS_checkSig)
     mapArgs["-maxsigcachesize"] = "10";
     // Generate a new, different signature for vin[0] to trigger cache clear:
     CScript oldSig = tx.vin[0].scriptSig;
-    BOOST_CHECK(SignSignature(keystore, orphans[0], tx, 0));
+    BOOST_CHECK(SignSignature(keystore, orphans[0], tx, 0, SIGHASH_ALL, 0));
     BOOST_CHECK(tx.vin[0].scriptSig != oldSig);
     for (unsigned int j = 0; j < tx.vin.size(); j++)
         BOOST_CHECK(VerifySignature(CCoins(orphans[j], MEMPOOL_HEIGHT), tx, j, flags, SIGHASH_ALL));
