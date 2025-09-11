@@ -16,8 +16,7 @@ using namespace boost;
 #include "sync.h"
 #include "util.h"
 
-bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight = 0);
-
+bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight);
 
 
 typedef vector<unsigned char> valtype;
@@ -1088,7 +1087,7 @@ public:
 };
 
 bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode,
-              const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight = 0)
+              const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight)
 {
     static CSignatureCache signatureCache;
 
@@ -1130,7 +1129,7 @@ bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubK
 //
 // Return public keys or hashes from scriptPubKey, for 'standard' transaction types.
 //
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet)
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet, int nHeight = 0)
 {
     // Templates
     static map<txnouttype, CScript> mTemplates;
@@ -1339,7 +1338,7 @@ bool IsStandard(const CScript& scriptPubKey)
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
-    if (!Solver(scriptPubKey, whichType, vSolutions))
+    if (!Solver(scriptPubKey, whichType, vSolutions, 0))
         return false;
 
     if (whichType == TX_MULTISIG)
@@ -1390,7 +1389,7 @@ bool IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
-    if (!Solver(scriptPubKey, whichType, vSolutions))
+    if (!Solver(scriptPubKey, whichType, vSolutions, 0))
         return false;
 
     CKeyID keyID;
@@ -1429,7 +1428,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
-    if (!Solver(scriptPubKey, whichType, vSolutions))
+    if (!Solver(scriptPubKey, whichType, vSolutions, 0))
         return false;
 
     if (whichType == TX_PUBKEY)
@@ -1456,7 +1455,7 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
-    if (!Solver(scriptPubKey, typeRet, vSolutions))
+    if (!Solver(scriptPubKey, typeRet, vSolutions, 0))
         return false;
 
     if (typeRet == TX_MULTISIG)
@@ -1660,7 +1659,7 @@ static CScript CombineSignatures(CScript scriptPubKey, const CTransaction& txTo,
 
             txnouttype txType2;
             vector<vector<unsigned char> > vSolutions2;
-            Solver(pubKey2, txType2, vSolutions2);
+            Solver(pubKey2, txType2, vSolutions2, 0);
             sigs1.pop_back();
             sigs2.pop_back();
             CScript result = CombineSignatures(pubKey2, txTo, nIn, txType2, vSolutions2, sigs1, sigs2);
@@ -1679,7 +1678,7 @@ CScript CombineSignatures(CScript scriptPubKey, const CTransaction& txTo, unsign
 {
     txnouttype txType;
     vector<vector<unsigned char> > vSolutions;
-    Solver(scriptPubKey, txType, vSolutions);
+    Solver(scriptPubKey, txType, vSolutions, 0);
 
     vector<valtype> stack1;
     EvalScript(stack1, scriptSig1, CTransaction(), 0, SCRIPT_VERIFY_STRICTENC, 0);
