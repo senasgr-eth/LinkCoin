@@ -8,15 +8,92 @@
 
 ####### Compiler, tools and options
 
+# Base compiler settings
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_WEBKIT -DQT_GUI -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE -DUSE_UPNP=1 -DSTATICLIB -DUSE_IPV6=1 -DHAVE_BUILD_INFO -DLINUX -D_FILE_OFFSET_BITS=64 -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED
+
+# Boost configuration
+BOOST_LIB_PATH = /usr/lib/x86_64-linux-gnu
+BOOST_INCLUDE_PATH = /usr/include/boost
+
+# Compiler flags
+DEFINES       = -DQT_WEBKIT \
+                -DQT_GUI \
+                -DBOOST_THREAD_USE_LIB \
+                -DBOOST_FILESYSTEM_VERSION=3 \
+                -DBOOST_SPIRIT_THREADSAFE \
+                -DUSE_UPNP=1 \
+                -DSTATICLIB \
+                -DUSE_IPV6=1 \
+                -DHAVE_BUILD_INFO \
+                -DLINUX \
+                -D_FILE_OFFSET_BITS=64 \
+                -DQT_NO_DEBUG \
+                -DQT_GUI_LIB \
+                -DQT_NETWORK_LIB \
+                -DQT_CORE_LIB \
+                -DQT_SHARED
+
 CFLAGS        = -m64 -pipe -O2 -D_REENTRANT -Wall -W $(DEFINES)
-CXXFLAGS      = -m64 -pipe -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -O2 -D_REENTRANT -fdiagnostics-show-option -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector $(DEFINES)
-INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++-64 -I/usr/include/qt4/QtCore -I/usr/include/qt4/QtNetwork -I/usr/include/qt4/QtGui -I/usr/include/qt4 -Isrc -Isrc/json -Isrc/qt -Isrc/leveldb/include -Isrc/leveldb/helpers -Ibuild -Ibuild
+CXXFLAGS      = -m64 -pipe -fstack-protector-all \
+                -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
+                -O2 -D_REENTRANT \
+                -fdiagnostics-show-option \
+                -Wall -Wextra -Wformat \
+                -Wformat-security \
+                -Wno-unused-parameter \
+                -Wstack-protector \
+                $(DEFINES)
+
+# Include paths
+INCPATH       = -I/usr/share/qt4/mkspecs/linux-g++-64 \
+                -I/usr/include/qt4/QtCore \
+                -I/usr/include/qt4/QtNetwork \
+                -I/usr/include/qt4/QtGui \
+                -I/usr/include/qt4 \
+                -I$(BOOST_INCLUDE_PATH) \
+                -Isrc \
+                -Isrc/json \
+                -Isrc/qt \
+                -Isrc/leveldb/include \
+                -Isrc/leveldb/helpers \
+                -Ibuild
+
+# Linker settings
 LINK          = g++
 LFLAGS        = -m64 -fstack-protector-all -Wl,-O1
-LIBS          = $(SUBLIBS)  -L/usr/lib/x86_64-linux-gnu -lminiupnpc /home/sena/Downloads/linkcoin/src/leveldb/libleveldb.a /home/sena/Downloads/linkcoin/src/leveldb/libmemenv.a -lrt -lssl -lcrypto -ldb_cxx -lboost_system -lboost_filesystem -lboost_program_options -lboost_thread -lpthread -lQtGui -lQtNetwork -lQtCore 
+
+# Library paths and dependencies
+LIBS          = $(SUBLIBS) \
+                -L/usr/lib/x86_64-linux-gnu \
+                -L$(BOOST_LIB_PATH) \
+                -Wl,--start-group \
+                -lminiupnpc \
+                /home/sena/Downloads/linkcoin/src/leveldb/libleveldb.a \
+                /home/sena/Downloads/linkcoin/src/leveldb/libmemenv.a \
+                -lrt \
+                -lssl \
+                -lcrypto \
+                -ldb_cxx \
+                -Wl,-Bstatic \
+                -lboost_system \
+                -lboost_filesystem \
+                -lboost_program_options \
+                -lboost_thread \
+                -lboost_chrono \
+                -lboost_date_time \
+                -lboost_regex \
+                -lboost_iostreams \
+                -lboost_atomic \
+                -lboost_serialization \
+                -Wl,-Bdynamic \
+                -Wl,--end-group \
+                -lpthread \
+                -ldl \
+                -lz \
+                -lQtGui \
+                -lQtNetwork \
+                -lQtCore
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/bin/qmake
