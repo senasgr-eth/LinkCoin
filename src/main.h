@@ -56,6 +56,11 @@ static const int64 DUST_HARD_LIMIT = 1000;   // 0.00001 LTC mininput
 /** No amount larger than this (in satoshi) is valid */
 static const int64 MAX_MONEY = 84000000 * COIN;
 inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
+
+/** Chain ID for replay protection (EIP-155 style) */
+static const uint64_t CHAIN_ID = 0x4C4E4B;  // 'LNK' in hex
+/** Block height at which chain ID replay protection is activated */
+static const int64_t CHAIN_ID_ACTIVATION_HEIGHT = 100000;  // Same as DIGISHIELD_START_BLOCK
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 100;
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */

@@ -16,7 +16,7 @@ using namespace boost;
 #include "sync.h"
 #include "util.h"
 
-bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, int flags);
+bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight = 0);
 
 
 
@@ -289,7 +289,7 @@ bool IsCanonicalSignature(const valtype &vchSig) {
     return true;
 }
 
-bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, const CTransaction& txTo, unsigned int nIn, unsigned int flags, int nHashType)
+bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, const CTransaction& txTo, unsigned int nIn, unsigned int flags, int nHashType, int nHeight)
 {
     CAutoBN_CTX pctx;
     CScript::const_iterator pc = script.begin();
@@ -843,7 +843,7 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, co
 
                     bool fSuccess = (!fStrictEncodings || (IsCanonicalSignature(vchSig) && IsCanonicalPubKey(vchPubKey)));
                     if (fSuccess)
-                        fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType, flags);
+                        fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType, flags, nHeight);
 
                     popstack(stack);
                     popstack(stack);
@@ -963,7 +963,7 @@ bool EvalScript(vector<vector<unsigned char> >& stack, const CScript& script, co
 
 
 
-uint256 SignatureHash(CScript scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType)
+uint256 SignatureHash(CScript scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, int nHeight)
 {
     if (nIn >= txTo.vin.size())
     {
@@ -1021,6 +1021,12 @@ uint256 SignatureHash(CScript scriptCode, const CTransaction& txTo, unsigned int
     // Serialize and hash
     CHashWriter ss(SER_GETHASH, 0);
     ss << txTmp << nHashType;
+    
+    // Include chain ID in the hash if we're at or above the activation height
+    if (nHeight >= CHAIN_ID_ACTIVATION_HEIGHT) {
+        ss << CHAIN_ID;
+    }
+    
     return ss.GetHash();
 }
 
@@ -1082,7 +1088,7 @@ public:
 };
 
 bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubKey, const CScript &scriptCode,
-              const CTransaction& txTo, unsigned int nIn, int nHashType, int flags)
+              const CTransaction& txTo, unsigned int nIn, int nHashType, int flags, int nHeight = 0)
 {
     static CSignatureCache signatureCache;
 
@@ -1099,7 +1105,7 @@ bool CheckSig(vector<unsigned char> vchSig, const vector<unsigned char> &vchPubK
         return false;
     vchSig.pop_back();
 
-    uint256 sighash = SignatureHash(scriptCode, txTo, nIn, nHashType);
+    uint256 sighash = SignatureHash(scriptCode, txTo, nIn, nHashType, nHeight);
 
     if (signatureCache.Get(sighash, vchSig, pubkey))
         return true;
@@ -1236,7 +1242,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 }
 
 
-bool Sign1(const CKeyID& address, const CKeyStore& keystore, uint256 hash, int nHashType, CScript& scriptSigRet)
+bool Sign1(const CKeyID& address, const CKeyStore& keystore, uint256 hash, int nHashType, CScript& scriptSigRet, int nHeight = 0)
 {
     CKey key;
     if (!keystore.GetKey(address, key))
@@ -1251,7 +1257,7 @@ bool Sign1(const CKeyID& address, const CKeyStore& keystore, uint256 hash, int n
     return true;
 }
 
-bool SignN(const vector<valtype>& multisigdata, const CKeyStore& keystore, uint256 hash, int nHashType, CScript& scriptSigRet)
+bool SignN(const vector<valtype>& multisigdata, const CKeyStore& keystore, uint256 hash, int nHashType, CScript& scriptSigRet, int nHeight = 0)
 {
     int nSigned = 0;
     int nRequired = multisigdata.front()[0];
@@ -1259,7 +1265,7 @@ bool SignN(const vector<valtype>& multisigdata, const CKeyStore& keystore, uint2
     {
         const valtype& pubkey = multisigdata[i];
         CKeyID keyID = CPubKey(pubkey).GetID();
-        if (Sign1(keyID, keystore, hash, nHashType, scriptSigRet))
+        if (Sign1(keyID, keystore, hash, nHashType, scriptSigRet, nHeight))
             ++nSigned;
     }
     return nSigned==nRequired;
@@ -1272,12 +1278,12 @@ bool SignN(const vector<valtype>& multisigdata, const CKeyStore& keystore, uint2
 // Returns false if scriptPubKey could not be completely satisfied.
 //
 bool Solver(const CKeyStore& keystore, const CScript& scriptPubKey, uint256 hash, int nHashType,
-                  CScript& scriptSigRet, txnouttype& whichTypeRet)
+                  CScript& scriptSigRet, txnouttype& whichTypeRet, int nHeight = 0)
 {
     scriptSigRet.clear();
 
     vector<valtype> vSolutions;
-    if (!Solver(scriptPubKey, whichTypeRet, vSolutions))
+    if (!Solver(scriptPubKey, whichTypeRet, vSolutions, nHeight))
         return false;
 
     CKeyID keyID;
@@ -1287,10 +1293,10 @@ bool Solver(const CKeyStore& keystore, const CScript& scriptPubKey, uint256 hash
         return false;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();
-        return Sign1(keyID, keystore, hash, nHashType, scriptSigRet);
+        return Sign1(keyID, keystore, hash, nHashType, scriptSigRet, nHeight);
     case TX_PUBKEYHASH:
         keyID = CKeyID(uint160(vSolutions[0]));
-        if (!Sign1(keyID, keystore, hash, nHashType, scriptSigRet))
+        if (!Sign1(keyID, keystore, hash, nHashType, scriptSigRet, nHeight))
             return false;
         else
         {
@@ -1304,7 +1310,7 @@ bool Solver(const CKeyStore& keystore, const CScript& scriptPubKey, uint256 hash
 
     case TX_MULTISIG:
         scriptSigRet << OP_0; // workaround CHECKMULTISIG bug
-        return (SignN(vSolutions, keystore, hash, nHashType, scriptSigRet));
+        return (SignN(vSolutions, keystore, hash, nHashType, scriptSigRet, nHeight));
     }
     return false;
 }
@@ -1475,14 +1481,14 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
 }
 
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CTransaction& txTo, unsigned int nIn,
-                  unsigned int flags, int nHashType)
+                  unsigned int flags, int nHashType, int nHeight)
 {
     vector<vector<unsigned char> > stack, stackCopy;
-    if (!EvalScript(stack, scriptSig, txTo, nIn, flags, nHashType))
+    if (!EvalScript(stack, scriptSig, txTo, nIn, flags, nHashType, nHeight))
         return false;
     if (flags & SCRIPT_VERIFY_P2SH)
         stackCopy = stack;
-    if (!EvalScript(stack, scriptPubKey, txTo, nIn, flags, nHashType))
+    if (!EvalScript(stack, scriptPubKey, txTo, nIn, flags, nHashType, nHeight))
         return false;
     if (stack.empty())
         return false;
@@ -1505,7 +1511,7 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
         CScript pubKey2(pubKeySerialized.begin(), pubKeySerialized.end());
         popstack(stackCopy);
 
-        if (!EvalScript(stackCopy, pubKey2, txTo, nIn, flags, nHashType))
+        if (!EvalScript(stackCopy, pubKey2, txTo, nIn, flags, nHashType, nHeight))
             return false;
         if (stackCopy.empty())
             return false;
@@ -1516,7 +1522,7 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
 }
 
 
-bool SignSignature(const CKeyStore &keystore, const CScript& fromPubKey, CTransaction& txTo, unsigned int nIn, int nHashType)
+bool SignSignature(const CKeyStore &keystore, const CScript& fromPubKey, CTransaction& txTo, unsigned int nIn, int nHashType, int nHeight)
 {
     assert(nIn < txTo.vin.size());
     CTxIn& txin = txTo.vin[nIn];
@@ -1548,17 +1554,17 @@ bool SignSignature(const CKeyStore &keystore, const CScript& fromPubKey, CTransa
     }
 
     // Test solution
-    return VerifyScript(txin.scriptSig, fromPubKey, txTo, nIn, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, 0);
+    return VerifyScript(txin.scriptSig, fromPubKey, txTo, nIn, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, 0, nHeight);
 }
 
-bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTransaction& txTo, unsigned int nIn, int nHashType)
+bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTransaction& txTo, unsigned int nIn, int nHashType, int nHeight)
 {
     assert(nIn < txTo.vin.size());
     CTxIn& txin = txTo.vin[nIn];
     assert(txin.prevout.n < txFrom.vout.size());
     const CTxOut& txout = txFrom.vout[txin.prevout.n];
 
-    return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType);
+    return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType, nHeight);
 }
 
 static CScript PushAll(const vector<valtype>& values)

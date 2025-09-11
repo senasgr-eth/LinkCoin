@@ -1122,6 +1122,45 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
     return bnResult.GetCompact();
 }
 
+// DigiShield implementation
+unsigned int static DigiShieldCalculate(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const CBigNum& bnPowLimit, unsigned int nPowTargetTimespan, unsigned int nPowTargetSpacing) {
+    // This cannot handle the genesis block and early blocks in general.
+    assert(pindexLast != NULL);
+    
+    // Only change once per interval
+    const CBlockIndex* pindexFirst = pindexLast;
+    for (int i = 0; pindexFirst && i < 24; i++)
+        pindexFirst = pindexFirst->pprev;
+    
+    assert(pindexFirst);
+    
+    // Limit adjustment step
+    int64_t nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime();
+    int64_t nTargetTimespan = 24 * nPowTargetSpacing;
+    
+    // Retarget
+    CBigNum bnNew;
+    bnNew.SetCompact(pindexLast->nBits);
+    
+    // Limit adjustment to 3x or 1/3 to prevent wild swings
+    if (nActualTimespan < (nTargetTimespan / 3))
+        nActualTimespan = nTargetTimespan / 3;
+    if (nActualTimespan > nTargetTimespan * 3)
+        nActualTimespan = nTargetTimespan * 3;
+    
+    // Retarget with exponential moving average
+    bnNew *= nActualTimespan;
+    bnNew /= nTargetTimespan;
+    
+    if (bnNew > bnPowLimit)
+        bnNew = bnPowLimit;
+    
+    return bnNew.GetCompact();
+}
+
+// Block height at which to activate DigiShield
+static const int64_t DIGISHIELD_START_BLOCK = 100000;
+
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
     unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
@@ -1130,14 +1169,18 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 
+    // Activate DigiShield after a certain block height
+    if (pindexLast->nHeight + 1 >= DIGISHIELD_START_BLOCK) {
+        return DigiShieldCalculate(pindexLast, pblock, bnProofOfWorkLimit, nTargetTimespan, nTargetSpacing);
+    }
+
+    // Original difficulty adjustment for blocks before DigiShield activation
     // Only change once per interval
     if ((pindexLast->nHeight+1) % nInterval != 0)
     {
         // Special difficulty rule for testnet:
         if (fTestNet)
         {
-            // If the new block's timestamp is more than 2* 10 minutes
-            // then allow mining of a min-difficulty block.
             if (pblock->nTime > pindexLast->nTime + nTargetSpacing*2)
                 return nProofOfWorkLimit;
             else
@@ -1149,17 +1192,14 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
                 return pindex->nBits;
             }
         }
-
         return pindexLast->nBits;
     }
 
-    // Linkcoin: This fixes an issue where a 51% attack can change difficulty at will.
-    // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
+    // Original difficulty adjustment code for blocks before DigiShield
     int blockstogoback = nInterval-1;
     if ((pindexLast->nHeight+1) != nInterval)
         blockstogoback = nInterval;
 
-    // Go back by what we want to be 14 days worth of blocks
     const CBlockIndex* pindexFirst = pindexLast;
     for (int i = 0; pindexFirst && i < blockstogoback; i++)
         pindexFirst = pindexFirst->pprev;
@@ -1181,12 +1221,6 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
 
     if (bnNew > bnProofOfWorkLimit)
         bnNew = bnProofOfWorkLimit;
-
-    /// debug print
-    printf("GetNextWorkRequired RETARGET\n");
-    printf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", nTargetTimespan, nActualTimespan);
-    printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-    printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
     return bnNew.GetCompact();
 }

@@ -1188,16 +1188,12 @@ void MapPort(bool)
 
 
 // DNS seeds
-// Each pair gives a source name and a seed name.
-// The first name is used as information source for addrman.
-// The second name should resolve to a list of seed addresses.
+// DNS seeding disabled - all seed nodes have been removed
 static const char *strMainNetDNSSeed[][2] = {
-    {"54.191.71.107", "54.191.71.107"},
     {NULL, NULL}
 };
 
 static const char *strTestNetDNSSeed[][2] = {
-    {"54.191.71.107", "54.191.71.107"},
     {NULL, NULL}
 };
 
@@ -1207,28 +1203,9 @@ void ThreadDNSAddressSeed()
 
     int found = 0;
 
-    printf("Loading addresses from DNS seeds (could take a while)\n");
-
-    for (unsigned int seed_idx = 0; strDNSSeed[seed_idx][0] != NULL; seed_idx++) {
-        if (HaveNameProxy()) {
-            AddOneShot(strDNSSeed[seed_idx][1]);
-        } else {
-            vector<CNetAddr> vaddr;
-            vector<CAddress> vAdd;
-            if (LookupHost(strDNSSeed[seed_idx][1], vaddr))
-            {
-                BOOST_FOREACH(CNetAddr& ip, vaddr)
-                {
-                    int nOneDay = 24*3600;
-                    CAddress addr = CAddress(CService(ip, GetDefaultPort()));
-                    addr.nTime = GetTime() - 3*nOneDay - GetRand(4*nOneDay); // use a random age between 3 and 7 days old
-                    vAdd.push_back(addr);
-                    found++;
-                }
-            }
-            addrman.Add(vAdd, CNetAddr(strDNSSeed[seed_idx][0], true));
-        }
-    }
+    printf("DNS seeding is disabled in this build.\n");
+    // DNS seeding functionality has been removed
+    // All seed nodes have been cleared for security and decentralization
 
     printf("%d addresses found from DNS seeds\n", found);
 }
