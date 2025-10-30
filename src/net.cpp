@@ -1082,6 +1082,10 @@ void ThreadMapPort()
 #ifndef UPNPDISCOVER_SUCCESS
     /* miniupnpc 1.5 */
     devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0);
+#elif MINIUPNPC_API_VERSION >= 14
+    /* miniupnpc 1.9 or later (API version >= 14) */
+    int error = 0;
+    devlist = upnpDiscover(2000, multicastif, minissdpdpath, 0, 0, 2, &error);
 #else
     /* miniupnpc 1.6 */
     int error = 0;
@@ -1223,6 +1227,7 @@ void ThreadDNSAddressSeed()
 
 unsigned int pnSeed[] =
 {
+    0xc9198567, // 103.133.25.201 - Primary seed node
     0x6ab5368e, 0x63109859, 0x6c47bb25, 0x87d888c1, 0x1d9b2e48, 0x63a6c545, 0xf3ca1a48, 0x23b6b242,
     0x8a67c7c6, 0x70a6f1c0, 0xc585c96d, 0x5cc4fd36, 0x239be836, 0x6660dc36, 0x2664cb36, 0xa602cd36,
     0xb83dfc36, 0x70a2fe18, 0x2c589d55, 0xf969ec2e, 0x702ab643, 0x6a97e655, 0xad9751ce, 0x57e5025a,
