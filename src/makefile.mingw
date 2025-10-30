@@ -20,16 +20,29 @@ CXX ?= g++
 USE_UPNP:=-
 USE_IPV6:=1
 
+# Support for depends build system
 DEPSDIR?=/usr/local
-BOOST_SUFFIX?=-mgw46-mt-sd-1_52
+BOOST_INCLUDE_PATH?=$(DEPSDIR)/include
+BOOST_LIB_PATH?=$(DEPSDIR)/lib
+BDB_INCLUDE_PATH?=$(DEPSDIR)/include
+BDB_LIB_PATH?=$(DEPSDIR)/lib
+OPENSSL_INCLUDE_PATH?=$(DEPSDIR)/include
+OPENSSL_LIB_PATH?=$(DEPSDIR)/lib
+
+# Boost suffix for depends build system (Windows uses -mt-s for static multi-threaded)
+BOOST_SUFFIX?=-mt-s
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
- -I"$(DEPSDIR)/include"
+ -I"$(BOOST_INCLUDE_PATH)" \
+ -I"$(BDB_INCLUDE_PATH)" \
+ -I"$(OPENSSL_INCLUDE_PATH)"
 
 LIBPATHS= \
  -L"$(CURDIR)/leveldb" \
- -L"$(DEPSDIR)/lib"
+ -L"$(BOOST_LIB_PATH)" \
+ -L"$(BDB_LIB_PATH)" \
+ -L"$(OPENSSL_LIB_PATH)"
 
 LIBS= \
  -l leveldb \
@@ -37,17 +50,18 @@ LIBS= \
  -l boost_system$(BOOST_SUFFIX) \
  -l boost_filesystem$(BOOST_SUFFIX) \
  -l boost_program_options$(BOOST_SUFFIX) \
- -l boost_thread$(BOOST_SUFFIX) \
+ -l boost_thread_win32$(BOOST_SUFFIX) \
  -l boost_chrono$(BOOST_SUFFIX) \
  -l db_cxx \
  -l ssl \
  -l crypto
 
-DEFS=-D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE
+DEFS=-D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_NO_CXX11_SCOPED_ENUMS
 DEBUGFLAGS=-g
 CFLAGS=-mthreads -O2 -w -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
-# enable: ASLR, DEP and large address aware
-LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -Wl,--large-address-aware
+# enable: ASLR, DEP and static linking
+# Note: --large-address-aware is only for 32-bit builds
+LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -static
 
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
