@@ -1,0 +1,48 @@
+sha256sum: /workspaces/LinkCoin-eth/depends/patches/qt/mingw-uuidof.patch: No such file or directory
+sha256sum: /workspaces/LinkCoin-eth/depends/patches/qt/pidlist_absolute.patch: No such file or directory
+sha256sum: /workspaces/LinkCoin-eth/depends/patches/qt/fix-xcb-include-order.patch: No such file or directory
+sha256sum: /workspaces/LinkCoin-eth/depends/patches/qt/fix_qt_pkgconfig.patch: No such file or directory
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/sources/download-stamps/.stamp_fetched-bdb-db-4.8.30.NC.tar.gz.hash'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/sources/download-stamps/.stamp_fetched-bdb-db-4.8.30.NC.tar.gz.hash'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_extracted'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_extracted'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_preprocessed'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_preprocessed'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/build_unix/.stamp_configured'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/build_unix/.stamp_configured'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/build_unix/.stamp_built'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/build_unix/.stamp_built'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_staged'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_staged'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/workspaces/LinkCoin-eth/depends/x86_64-pc-linux-gnu/.stamp_postprocessed'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/workspaces/LinkCoin-eth/depends/x86_64-pc-linux-gnu/.stamp_postprocessed'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/bdb/bdb-4.8.30-41d8e7baa10.tar.gz'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/bdb/bdb-4.8.30-41d8e7baa10.tar.gz'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/bdb/bdb-4.8.30-41d8e7baa10.tar.gz.hash'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/bdb/bdb-4.8.30-41d8e7baa10.tar.gz.hash'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/sources/download-stamps/.stamp_fetched-miniupnpc-miniupnpc-2.0.20170509.tar.gz.hash'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/sources/download-stamps/.stamp_fetched-miniupnpc-miniupnpc-2.0.20170509.tar.gz.hash'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_extracted'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_extracted'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_preprocessed'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_preprocessed'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/./.stamp_configured'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/./.stamp_configured'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/./.stamp_built'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/./.stamp_built'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_staged'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/.stamp_staged'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/workspaces/LinkCoin-eth/depends/x86_64-pc-linux-gnu/.stamp_postprocessed'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/work/staging/x86_64-pc-linux-gnu/miniupnpc/2.0.20170509-b8eab093c31/workspaces/LinkCoin-eth/depends/x86_64-pc-linux-gnu/.stamp_postprocessed'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/miniupnpc/miniupnpc-2.0.20170509-b8eab093c31.tar.gz'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/miniupnpc/miniupnpc-2.0.20170509-b8eab093c31.tar.gz'
+funcs.mk:244: warning: overriding recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/miniupnpc/miniupnpc-2.0.20170509-b8eab093c31.tar.gz.hash'
+funcs.mk:244: warning: ignoring old recipe for target '/workspaces/LinkCoin-eth/depends/built/x86_64-pc-linux-gnu/miniupnpc/miniupnpc-2.0.20170509-b8eab093c31.tar.gz.hash'
+Extracting bdb...
+/workspaces/LinkCoin-eth/depends/sources/db-4.8.30.NC.tar.gz: OK
+Preprocessing bdb...
+patching file dbinc/atomic.h
+Hunk #1 FAILED at 144.
+patch: **** malformed patch at line 21:  	atomic_value_t was;
+
+make: *** [funcs.mk:247: /workspaces/LinkCoin-eth/depends/work/build/x86_64-pc-linux-gnu/bdb/4.8.30-41d8e7baa10/.stamp_preprocessed] Error 2
